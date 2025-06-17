@@ -7,20 +7,24 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Crea la tabla 'bloques'.
      */
     public function up(): void
     {
         Schema::create('bloques', function (Blueprint $table) {
-            $table->id();
+            $table->id(); // ID autoincremental
+
+            // Relación con el proyecto al que pertenece el bloque
             $table->foreignId('proyecto_id')->constrained()->onDelete('cascade');
-            $table->string('nombre');
-            $table->timestamps();
+
+            $table->string('nombre'); // Nombre del bloque
+
+            $table->timestamps(); // created_at y updated_at
         });
     }
 
     /**
-     * Reverse the migrations.
+     * Elimina la tabla si existe.
      */
     public function down(): void
     {

@@ -7,19 +7,21 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Crea la tabla 'proyectos'.
      */
     public function up(): void
     {
         Schema::create('proyectos', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-            $table->string('nombre');
+            $table->id(); // ID autoincremental
+
+            $table->timestamps(); // created_at y updated_at
+
+            $table->string('nombre'); // Nombre del proyecto
         });
     }
 
     /**
-     * Reverse the migrations.
+     * Elimina la tabla si existe.
      */
     public function down(): void
     {

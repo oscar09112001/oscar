@@ -7,24 +7,33 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Crea la tabla 'registros'.
      */
     public function up(): void
     {
         Schema::create('registros', function (Blueprint $table) {
-           $table->id();
-           $table->foreignId('user_id')->constrained()->onDelete('cascade');
-           $table->foreignId('pieza_id')->constrained()->onDelete('cascade');
-           $table->float('peso_real');
-           $table->timestamps();
+            $table->id(); // ID autoincremental
+
+            // Relación con el usuario que creó el registro
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+
+            // Relación con la pieza registrada
+            $table->foreignId('pieza_id')->constrained()->onDelete('cascade');
+
+            // Peso real de la pieza
+            $table->float('peso_real');
+
+            // created_at y updated_at
+            $table->timestamps();
         });
     }
 
     /**
-     * Reverse the migrations.
+     * Elimina la tabla si existe.
      */
     public function down(): void
     {
         Schema::dropIfExists('registros');
     }
 };
+

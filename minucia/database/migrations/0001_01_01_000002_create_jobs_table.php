@@ -7,46 +7,49 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Ejecuta las migraciones.
      */
     public function up(): void
     {
+        // Tabla que Laravel usa para almacenar trabajos pendientes
         Schema::create('jobs', function (Blueprint $table) {
-            $table->id();
-            $table->string('queue')->index();
-            $table->longText('payload');
-            $table->unsignedTinyInteger('attempts');
-            $table->unsignedInteger('reserved_at')->nullable();
-            $table->unsignedInteger('available_at');
-            $table->unsignedInteger('created_at');
+            $table->id(); // ID del trabajo
+            $table->string('queue')->index(); // Nombre de la cola
+            $table->longText('payload'); // Datos del trabajo (serializados)
+            $table->unsignedTinyInteger('attempts'); // Reintentos hechos
+            $table->unsignedInteger('reserved_at')->nullable(); // Tiempo en que fue reservado por un worker
+            $table->unsignedInteger('available_at'); // Cuándo estará disponible para ejecutarse
+            $table->unsignedInteger('created_at'); // Cuándo fue creado
         });
 
+        // Tabla usada cuando se trabaja con lotes de trabajos
         Schema::create('job_batches', function (Blueprint $table) {
-            $table->string('id')->primary();
-            $table->string('name');
-            $table->integer('total_jobs');
-            $table->integer('pending_jobs');
-            $table->integer('failed_jobs');
-            $table->longText('failed_job_ids');
-            $table->mediumText('options')->nullable();
-            $table->integer('cancelled_at')->nullable();
-            $table->integer('created_at');
-            $table->integer('finished_at')->nullable();
+            $table->string('id')->primary(); // ID del lote
+            $table->string('name'); // Nombre del batch
+            $table->integer('total_jobs'); // Total de trabajos en el lote
+            $table->integer('pending_jobs'); // Cuántos aún están pendientes
+            $table->integer('failed_jobs'); // Cuántos fallaron
+            $table->longText('failed_job_ids'); // IDs de los trabajos fallidos
+            $table->mediumText('options')->nullable(); // Configuraciones adicionales
+            $table->integer('cancelled_at')->nullable(); // Si se canceló, cuándo
+            $table->integer('created_at'); // Fecha de creación
+            $table->integer('finished_at')->nullable(); // Fecha de finalización
         });
 
+        // Tabla donde Laravel guarda los trabajos que fallaron definitivamente
         Schema::create('failed_jobs', function (Blueprint $table) {
-            $table->id();
-            $table->string('uuid')->unique();
-            $table->text('connection');
-            $table->text('queue');
-            $table->longText('payload');
-            $table->longText('exception');
-            $table->timestamp('failed_at')->useCurrent();
+            $table->id(); // ID del fallo
+            $table->string('uuid')->unique(); // UUID único del job
+            $table->text('connection'); // Tipo de conexión (base de datos, Redis, etc.)
+            $table->text('queue'); // Cola del trabajo
+            $table->longText('payload'); // Datos originales del job
+            $table->longText('exception'); // Error que ocurrió
+            $table->timestamp('failed_at')->useCurrent(); // Cuándo falló
         });
     }
 
     /**
-     * Reverse the migrations.
+     * Revierte las migraciones.
      */
     public function down(): void
     {

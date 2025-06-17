@@ -14,7 +14,7 @@ use Inertia\Response;
 class AuthenticatedSessionController extends Controller
 {
     /**
-     * Display the login view.
+     * Muestra la vista del formulario de inicio de sesión.
      */
     public function create(): Response
     {
@@ -25,32 +25,30 @@ class AuthenticatedSessionController extends Controller
     }
 
     /**
-     * Handle an incoming authentication request.
+     * Procesa la solicitud de autenticación (inicio de sesión).
      */
     public function store(LoginRequest $request): RedirectResponse
     {
-        // Simular autenticación sin validar credenciales
-    $user = \App\Models\User::first(); // Obtiene el primer usuario de la base
-    if ($user) {
-        \Illuminate\Support\Facades\Auth::login($user);
-    }
+        // Valida las credenciales y autentica al usuario
+        $request->authenticate();
 
-    // Redirige directo al formulario
-    return redirect()->route('formulario.index');
+        // Regenera la sesión para mayor seguridad
+        $request->session()->regenerate();
 
+        // Redirige a la página que el usuario intentaba visitar, o al formulario
+        return redirect()->intended('/formulario');
     }
 
     /**
-     * Destroy an authenticated session.
+     * Cierra la sesión del usuario autenticado.
      */
     public function destroy(Request $request): RedirectResponse
     {
-        Auth::guard('web')->logout();
+        Auth::guard('web')->logout(); // Cierra sesión
 
-        $request->session()->invalidate();
+        $request->session()->invalidate(); // Invalida la sesión
+        $request->session()->regenerateToken(); // Regenera el token CSRF
 
-        $request->session()->regenerateToken();
-
-        return redirect('/');
+        return redirect('/'); // Redirige al inicio
     }
 }

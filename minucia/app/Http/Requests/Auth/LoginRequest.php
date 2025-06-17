@@ -12,7 +12,7 @@ use Illuminate\Validation\ValidationException;
 class LoginRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * Autoriza esta petición (en este caso, siempre se permite).
      */
     public function authorize(): bool
     {
@@ -20,51 +20,53 @@ class LoginRequest extends FormRequest
     }
 
     /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * Reglas de validación del formulario de login.
      */
     public function rules(): array
     {
         return [
-            'email' => ['required', 'string', 'email'],
-            'password' => ['required', 'string'],
+            'email' => ['required', 'string', 'email'],     // El campo email debe existir y ser válido
+            'password' => ['required', 'string'],           // El campo contraseña debe existir
         ];
     }
 
     /**
-     * Attempt to authenticate the request's credentials.
-     *
-     * @throws \Illuminate\Validation\ValidationException
+     * Intenta autenticar al usuario con los datos proporcionados.
+     * Aplica también protección contra múltiples intentos fallidos (rate limiting).
      */
     public function authenticate(): void
     {
+        // Verifica si no ha superado el límite de intentos fallidos
         $this->ensureIsNotRateLimited();
 
+        // Intenta hacer login con las credenciales
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+            // Si falla, suma un intento fallido
             RateLimiter::hit($this->throttleKey());
 
+            // Lanza error de validación
             throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
+                'email' => trans('auth.failed'), // Mensaje estándar: "Estas credenciales no coinciden..."
             ]);
         }
 
+        // Si todo va bien, limpia los intentos fallidos
         RateLimiter::clear($this->throttleKey());
     }
 
     /**
-     * Ensure the login request is not rate limited.
-     *
-     * @throws \Illuminate\Validation\ValidationException
+     * Lanza excepción si se exceden los intentos permitidos (protección de fuerza bruta).
      */
     public function ensureIsNotRateLimited(): void
     {
         if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
-            return;
+            return; // Si no ha pasado el límite, todo bien
         }
 
+        // Lanza evento de bloqueo
         event(new Lockout($this));
 
+        // Calcula el tiempo restante de espera
         $seconds = RateLimiter::availableIn($this->throttleKey());
 
         throw ValidationException::withMessages([
@@ -76,10 +78,10 @@ class LoginRequest extends FormRequest
     }
 
     /**
-     * Get the rate limiting throttle key for the request.
+     * Genera una clave única para limitar intentos por IP + correo.
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
+        return Str::transliterate(Str::lower($this->string('email')) . '|' . $this->ip());
     }
 }
