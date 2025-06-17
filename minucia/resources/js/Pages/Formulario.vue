@@ -1,5 +1,14 @@
 <template>
+  <div class="fixed top-4 right-4 z-50">
+    <button
+      @click="logout"
+      class="text-blue-600 hover:underline bg-white rounded shadow px-4 py-2"
+    >
+      Volver
+    </button>
+  </div>
   <div class="max-w-xl mx-auto mt-10 bg-white p-6 rounded shadow">
+    
     <h1 class="text-2xl font-bold mb-4">Registrar pieza</h1>
 
     <form @submit.prevent="submit">
@@ -55,11 +64,16 @@
       {{ $page.props.flash.success }}
     </div>
   </div>
+  <div>
+    <p class="text-center text-gray-500 mt-4">
+      <a href="/reportes" class="text-blue-600 hover:underline">Ver registros</a>
+    </p>
+  </div>
 </template>
 
 <script setup>
 import { ref, onMounted} from 'vue'
-import { useForm, usePage } from '@inertiajs/vue3'
+import { router, useForm, usePage } from '@inertiajs/vue3'
 
 
 
@@ -94,5 +108,9 @@ onMounted(() => {
 
 const submit = () => {
   form.post(route('formulario.store'))
+}
+
+function logout() {
+  router.post(route('logout'))
 }
 </script>

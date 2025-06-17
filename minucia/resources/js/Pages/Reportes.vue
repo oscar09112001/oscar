@@ -1,4 +1,12 @@
 <template>
+   <div class="fixed top-4 right-4 z-50">
+    <button
+      @click="$inertia.visit('/formulario')"
+      class="text-blue-600 hover:underline bg-white rounded shadow px-4 py-2"
+    >
+      Volver al formulario
+    </button>
+  </div>
   <div class="max-w-4xl mx-auto mt-10 bg-white p-6 rounded shadow">
     <h1 class="text-2xl font-bold mb-4">Registros</h1>
 

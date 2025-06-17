@@ -9,6 +9,7 @@ use App\Models\Pieza;
 use App\Models\Registro;
 use App\Models\Proyecto;
 
+
 class FormularioController extends Controller
 {
     public function index()
